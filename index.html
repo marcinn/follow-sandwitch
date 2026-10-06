@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="description" content="Nieskończony fraktalny zoom: śledź z kanapką ze śledziem." />
+    <title>śledz z kanapką ze śledziem</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M5 34 18 26q21-8 33 1l9-8-3 14 3 13-10-7q-20 12-45-5Z' fill='white' stroke='black' stroke-width='3'/%3E%3Ccircle cx='17' cy='31' r='2'/%3E%3C/svg%3E" />
+    <style>
+      * { box-sizing: border-box; }
+      html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #fff; color: #111; font-family: "Courier New", ui-monospace, monospace; }
+      main, #viewport { width: 100%; height: 100%; }
+      #viewport { display: block; background: #fff; }
+      #viewport .vector-line { vector-effect: non-scaling-stroke; }
+      header { position: fixed; z-index: 6; top: max(1rem, env(safe-area-inset-top)); left: 50%; translate: -50% 0; width: min(92vw, 60rem); text-align: center; pointer-events: none; }
+      h1 { margin: 0; color: #111; font-size: clamp(1.45rem, 4.7vw, 4.3rem); font-weight: 700; line-height: .96; letter-spacing: -.065em; text-wrap: balance; }
+      .controls { position: fixed; z-index: 7; left: 50%; bottom: max(.9rem, env(safe-area-inset-bottom)); translate: -50% 0; display: flex; align-items: center; gap: .4rem; padding: .4rem; border: 2px solid #111; border-radius: 999px; background: rgba(255,255,255,.92); }
+      button { min-width: 2.8rem; min-height: 2.8rem; border: 2px solid #111; border-radius: 50%; color: #111; background: #fff; font: 700 1.1rem/1 monospace; cursor: pointer; }
+      button:hover, #toggle { color: #fff; background: #111; }
+      button:active { transform: scale(.94); }
+      button:focus-visible { outline: 3px solid #111; outline-offset: 3px; }
+      output { min-width: 4rem; color: #111; font: 700 .78rem/1 monospace; text-align: center; }
+      .hint { position: fixed; z-index: 6; right: 1rem; bottom: 1rem; margin: 0; font: 700 .75rem/1.3 monospace; }
+      @media (max-width: 680px) { h1 { font-size: clamp(1.4rem, 8.5vw, 2.5rem); } .hint { display: none; } }
+      @media (prefers-reduced-motion: reduce) { .hint { display: none; } }
+    </style>
+  </head>
+  <body>
+    <main aria-label="Nieskończona animacja śledzia z kanapką ze śledziem">
+      <svg id="viewport" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice" role="img" aria-labelledby="svg-title svg-desc">
+        <title id="svg-title">Śledź z kanapką ze śledziem</title>
+        <desc id="svg-desc">Prosty wektorowy śledź ze szkicu leży na kanapce i trzyma mniejszą kanapkę zawierającą tę samą scenę.</desc>
+        <defs>
+          <clipPath id="portal-clip"><rect x="310" y="515" width="55" height="55" /></clipPath>
+
+          <g id="scene-background">
+            <rect width="1000" height="1000" fill="#fff" />
+          </g>
+
+          <g id="scene-sketch"></g>
+
+          <g id="scene-corrections" fill="none" stroke="#111" stroke-linecap="round" stroke-linejoin="round">
+            <!-- Wkurwiona brew częściowo zasłania oko. -->
+            <path class="vector-line" d="M277 465 L313 477" stroke-width="3" />
+          </g>
+        </defs>
+
+        <g id="world"></g>
+      </svg>
+
+      <header><h1>śledz z kanapką ze śledziem</h1></header>
+      <div class="controls" aria-label="Sterowanie animacją">
+        <button id="slower" type="button" aria-label="Zwolnij">−</button>
+        <button id="toggle" type="button" aria-label="Zatrzymaj animację">Ⅱ</button>
+        <button id="faster" type="button" aria-label="Przyspiesz">＋</button>
+        <output id="speed" aria-live="polite">1,00×</output>
+      </div>
+      <p class="hint">spacja: pauza · kółko: tempo</p>
+    </main>
+
+    <script>window.SLEDZ_PATHS=[[[585.48,367.71],[500,369.32],[433.87,364.48],[377.42,364.48],[319.35,370.93],[254.84,393.52],[219.35,411.27],[206.45,422.56],[172.58,443.53],[150,462.89],[132.26,498.39],[129.03,514.52],[125.81,559.69],[130.65,564.53]],[[588.71,372.55],[591.94,372.55],[593.55,382.23]],[[588.71,372.55],[585.48,383.84]],[[593.55,382.23],[585.48,383.84]],[[593.55,382.23],[638.71,374.16],[658.06,366.09],[688.71,362.87],[737.1,366.09],[801.61,395.13],[816.13,406.43],[832.26,430.63],[832.26,448.37],[812.9,472.57],[779.03,493.55],[745.16,509.68],[730.65,524.2],[717.74,530.65],[688.71,540.33],[641.94,562.92],[632.26,564.53],[616.13,575.83],[600,575.83],[570.97,583.89],[519.35,591.96],[501.61,598.41],[475.81,600.03],[448.39,606.48],[390.32,606.48],[337.1,612.93],[290.32,608.09],[222.58,606.48],[214.52,603.25],[188.71,603.25],[158.06,598.41],[140.32,583.89],[132.26,570.99]],[[593.55,382.23],[596.77,411.27],[600,417.72],[600,446.76],[604.84,458.05],[604.84,467.73]],[[582.26,383.84],[464.52,387.07]],[[582.26,383.84],[582.26,387.07],[546.77,417.72],[545.16,424.17],[538.71,429.01],[487.1,430.63],[482.26,427.4],[441.94,424.17],[401.61,424.17],[383.87,429.01]],[[870.97,427.4],[880.65,433.85],[882.26,441.92],[870.97,466.12],[862.9,475.8],[801.61,504.84],[774.19,522.59],[753.23,541.95],[729.03,553.24],[716.13,562.92],[656.45,587.12],[593.55,619.39],[587.1,627.45],[574.19,632.29],[438.71,638.75],[420.97,633.91],[398.39,633.91],[317.74,622.61],[151.61,627.45]],[[375.81,429.01],[383.87,429.01]],[[383.87,429.01],[295.16,456.44],[293.55,461.28],[227.42,493.55],[208.06,500],[195.16,508.07],[193.55,512.91],[237.1,512.91],[275.81,506.45],[285.48,508.07]],[[533.87,456.44],[496.77,472.57],[440.32,482.25],[377.42,504.84]],[[566.13,464.51],[604.84,467.73]],[[604.84,467.73],[609.68,470.96]],[[311.29,474.19],[301.61,475.8]],[[301.61,475.8],[291.94,479.03]],[[301.61,475.8],[301.61,479.03],[314.52,479.03]],[[314.52,479.03],[308.06,485.48],[291.94,483.87],[291.94,480.64]],[[353.23,487.09],[362.9,488.71],[374.19,498.39],[375.81,504.84]],[[375.81,504.84],[350,511.29],[300,514.52],[275.81,520.97]],[[377.42,504.84],[388.71,517.75],[388.71,524.2],[382.26,533.88],[370.97,537.11],[358.06,554.85],[351.61,554.85]],[[291.94,506.45],[285.48,508.07]],[[285.48,508.07],[274.19,519.36]],[[275.81,520.97],[270.97,522.59]],[[267.74,522.59],[264.52,525.81]],[[259.68,525.81],[264.52,525.81]],[[348.39,545.17],[311.29,548.4],[311.29,554.85],[319.35,562.92],[325.81,566.15],[343.55,564.53]],[[129.03,546.79],[130.65,564.53]],[[327.42,554.85],[338.71,554.85]],[[338.71,554.85],[332.26,559.69],[327.42,558.08]],[[351.61,561.31],[345.16,561.31],[343.55,564.53]],[[351.61,561.31],[351.61,566.15],[343.55,564.53]],[[130.65,564.53],[132.26,570.99]],[[132.26,570.99],[130.65,577.44],[133.87,582.28],[135.48,598.41],[151.61,627.45]]];</script>
+    <script>
+      const svg = document.querySelector('#viewport');
+      const world = document.querySelector('#world');
+      const sketch = document.querySelector('#scene-sketch');
+      const toggle = document.querySelector('#toggle');
+      const speedOutput = document.querySelector('#speed');
+      const ns = 'http://www.w3.org/2000/svg';
+      const xlink = 'http://www.w3.org/1999/xlink';
+      const portal = { x: 310, y: 515, scale: .055 };
+      const cycleSeconds = 10;
+      const state = { elapsed: 0, last: performance.now(), speed: 1, playing: !matchMedia('(prefers-reduced-motion: reduce)').matches };
+
+      for (const points of window.SLEDZ_PATHS || []) {
+        const path = document.createElementNS(ns, 'path');
+        path.setAttribute('d', points.map(([x, y], index) => `${index ? 'L' : 'M'}${x} ${y}`).join(' '));
+        path.setAttribute('class', 'vector-line');
+        path.setAttribute('fill', 'none');
+        path.setAttribute('stroke', '#111');
+        path.setAttribute('stroke-width', '1.4');
+        path.setAttribute('stroke-linecap', 'round');
+        path.setAttribute('stroke-linejoin', 'round');
+        sketch.append(path);
+      }
+
+      function use(id, parent) {
+        const node = document.createElementNS(ns, 'use');
+        node.setAttribute('href', `#${id}`);
+        node.setAttributeNS(xlink, 'href', `#${id}`);
+        parent.append(node);
+      }
+
+      function buildScene(parent, depth) {
+        const group = document.createElementNS(ns, 'g');
+        parent.append(group);
+        use('scene-background', group);
+        use('scene-sketch', group);
+        use('scene-corrections', group);
+        if (depth > 0) {
+          const clipped = document.createElementNS(ns, 'g');
+          clipped.setAttribute('clip-path', 'url(#portal-clip)');
+          group.append(clipped);
+          const child = document.createElementNS(ns, 'g');
+          child.setAttribute('transform', `translate(${portal.x} ${portal.y}) scale(${portal.scale})`);
+          clipped.append(child);
+          buildScene(child, depth - 1);
+        }
+      }
+
+      buildScene(world, 6);
+
+      function setPlaying(playing) {
+        state.playing = playing;
+        toggle.textContent = playing ? 'Ⅱ' : '▶';
+        toggle.setAttribute('aria-label', playing ? 'Zatrzymaj animację' : 'Wznów animację');
+      }
+
+      function setSpeed(speed) {
+        state.speed = Math.max(.25, Math.min(2.5, speed));
+        speedOutput.value = `${state.speed.toFixed(2).replace('.', ',')}×`;
+      }
+
+      function render(now) {
+        const delta = Math.min((now - state.last) / 1000, .08);
+        state.last = now;
+        if (state.playing) state.elapsed += delta * state.speed;
+        const phase = (state.elapsed / cycleSeconds) % 1;
+        const size = 1000 * Math.pow(portal.scale, phase);
+        const travel = (1 - size / 1000) / (1 - portal.scale);
+        const x = portal.x * travel;
+        const y = portal.y * travel;
+        svg.setAttribute('viewBox', `${x.toFixed(3)} ${y.toFixed(3)} ${size.toFixed(3)} ${size.toFixed(3)}`);
+        requestAnimationFrame(render);
+      }
+
+      document.querySelector('#slower').addEventListener('click', () => setSpeed(state.speed - .25));
+      document.querySelector('#faster').addEventListener('click', () => setSpeed(state.speed + .25));
+      toggle.addEventListener('click', () => setPlaying(!state.playing));
+      addEventListener('keydown', (event) => { if (event.code === 'Space') { event.preventDefault(); setPlaying(!state.playing); } });
+      addEventListener('wheel', (event) => setSpeed(state.speed + (event.deltaY < 0 ? .1 : -.1)), { passive: true });
+      setPlaying(state.playing);
+      requestAnimationFrame(render);
+    </script>
+  </body>
+</html>
